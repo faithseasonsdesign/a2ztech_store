@@ -48,7 +48,6 @@ class PayPalGateway extends \WC_Payment_Gateway {
 	const ORDER_PAYMENT_MODE_META_KEY   = '_ppcp_paypal_payment_mode';
 	const ORDER_PAYMENT_SOURCE_META_KEY = '_ppcp_paypal_payment_source';
 	const FEES_META_KEY                 = '_ppcp_paypal_fees';
-	const REFUND_FEES_META_KEY          = '_ppcp_paypal_refund_fees';
 	const REFUNDS_META_KEY              = '_ppcp_refunds';
 
 	/**
@@ -227,6 +226,7 @@ class PayPalGateway extends \WC_Payment_Gateway {
 
 			if (
 				( $this->config->has( 'vault_enabled' ) && $this->config->get( 'vault_enabled' ) )
+				|| ( $this->config->has( 'vault_enabled_dcc' ) && $this->config->get( 'vault_enabled_dcc' ) )
 				|| ( $this->config->has( 'subscriptions_mode' ) && $this->config->get( 'subscriptions_mode' ) === 'subscriptions_api' )
 			) {
 				array_push(
@@ -243,8 +243,6 @@ class PayPalGateway extends \WC_Payment_Gateway {
 					'subscription_payment_method_change_admin',
 					'multiple_subscriptions'
 				);
-			} elseif ( $this->config->has( 'vault_enabled_dcc' ) && $this->config->get( 'vault_enabled_dcc' ) ) {
-				$this->supports[] = 'tokenization';
 			}
 		}
 
@@ -291,11 +289,9 @@ class PayPalGateway extends \WC_Payment_Gateway {
 			// in the constructor, so must do it here.
 			global $theorder;
 			if ( $theorder instanceof WC_Order ) {
-				if ( $theorder->get_payment_method() === self::ID ) {
-					$payment_method_title = $theorder->get_payment_method_title();
-					if ( $payment_method_title ) {
-						$this->title = $payment_method_title;
-					}
+				$payment_method_title = $theorder->get_payment_method_title();
+				if ( $payment_method_title ) {
+					$this->title = $payment_method_title;
 				}
 			}
 		}
@@ -543,7 +539,6 @@ class PayPalGateway extends \WC_Payment_Gateway {
 				}
 
 				$wc_order->payment_complete();
-
 				return $this->handle_payment_success( $wc_order );
 			}
 
@@ -556,7 +551,9 @@ class PayPalGateway extends \WC_Payment_Gateway {
 				);
 			}
 
-			do_action( 'woocommerce_paypal_payments_before_handle_payment_success', $wc_order );
+			if ( $this->subscription_helper->has_subscription( $order_id ) ) {
+				$this->schedule_saved_payment_check( $order_id, $wc_order->get_customer_id() );
+			}
 
 			return $this->handle_payment_success( $wc_order );
 		} catch ( PayPalApiException $error ) {

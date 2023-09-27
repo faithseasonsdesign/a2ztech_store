@@ -1,0 +1,161 @@
+.wdcl_twitter_feed_carousel > .et_pb_module_inner * {
+	box-sizing: border-box;
+}
+
+.wdcl_twitter_feed_carousel .wdcl-icon {
+	font-size: 14px;
+	font-family: 'ETmodules' !important;
+}
+
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-item {
+	position: relative;
+	z-index: 0;
+	display: flex;
+	border-style: solid;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-content:before,
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-item:before {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: -1;
+	width: 100%;
+	height: 100%;
+	content: "";
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-inner-wrapper {
+	flex-direction: column;
+	padding: 30px 10px;
+}
+
+.wdcl-carousel.equal-height-on .slick-track .wdcl-twitter-feed-item,
+.wdcl-carousel.equal-height-on .slick-track .wdcl-twitter-feed-item-inner {
+    height: 100%;
+    width: 100%!important;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-item-inner {
+    width: 100%;
+}
+.wdcl-twitter-feed-item-inner {
+    border-style: solid;
+    position: relative;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-author,
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-inner-wrapper,
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-user {
+    display: flex;
+}
+
+.wdcl-twitter-feed-carousel.wdcl-twitter-right .wdcl-twitter-feed-icon span {
+	right: auto;
+	left: 5px;
+	transform: rotateY(-180deg);
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-icon span {
+	position: absolute;
+	width: 21px;
+	height: 21px;
+	top: 15px;
+	right: 15px;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-author {
+	margin-bottom: 15px;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-author {
+	align-items: center;
+	flex-direction: row;
+	margin-bottom: 10px;
+}
+
+.wdcl-twitter-feed-carousel.wdcl-twitter-center .wdcl-twitter-feed-author {
+	align-items: center;
+	flex-direction: column;
+}
+
+.wdcl-twitter-feed-carousel.wdcl-twitter-right .wdcl-twitter-feed-author {
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: reverse;
+	-webkit-flex-direction: row-reverse;
+	-ms-flex-direction: row-reverse;
+	flex-direction: row-reverse;
+}
+
+.wdcl-twitter-center .wdcl-twitter-feed-user {
+	text-align: center;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-user {
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	flex-direction: column;
+}
+
+
+.wdcl-twitter-feed-carousel.wdcl-twitter-left .wdcl-twitter-feed-avatar {
+	margin-right: 15px;
+}
+
+.wdcl-twitter-feed-carousel.wdcl-twitter-center .wdcl-twitter-feed-avatar{
+    margin-bottom: 5px;
+}
+
+.wdcl-twitter-feed-carousel.wdcl-twitter-right .wdcl-twitter-feed-avatar {
+	margin-left: 15px;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-avatar {
+	width: 48px;
+	max-width: 48px;
+	border-style: solid;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-content {
+	position: relative;
+	color: #222;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-content p {
+	margin-bottom: 5px;
+}
+
+.wdcl-twitter-feed-carousel.wdcl-twitter-left .wdcl-twitter-feed-content {
+	text-align: left;
+}
+
+.wdcl-twitter-feed-carousel.wdcl-twitter-center .wdcl-twitter-feed-content {
+	text-align: center;
+}
+
+.wdcl-twitter-feed-carousel.wdcl-twitter-right .wdcl-twitter-feed-content {
+	text-align: right;
+}
+
+/**
+ * Twitter item footer
+ */
+.wdcl-twitter-feed-carousel .wdcl-twitter-feed-footer {
+	position: absolute;
+	bottom: 15px;
+	left: 0;
+	padding: 0 15px;
+	width: 100%;
+	text-align: right;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-tweet-favorite {
+	margin-right: 12px;
+}
+
+.wdcl-twitter-feed-carousel .wdcl-tweet-favorite,
+.wdcl-twitter-feed-carousel .wdcl-tweet-retweet {
+	display: inline-block;
+	color: #a7a7a7;
+}

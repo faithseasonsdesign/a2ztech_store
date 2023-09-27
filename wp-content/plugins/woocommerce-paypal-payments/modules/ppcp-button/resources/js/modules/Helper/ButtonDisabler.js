@@ -9,24 +9,6 @@ const getElement = (selectorOrElement) => {
     return selectorOrElement;
 }
 
-const triggerEnabled = (selectorOrElement, element) => {
-    jQuery(document).trigger('ppcp-enabled', {
-        'handler': 'ButtonsDisabler.setEnabled',
-        'action': 'enable',
-        'selector': selectorOrElement,
-        'element': element
-    });
-}
-
-const triggerDisabled = (selectorOrElement, element) => {
-    jQuery(document).trigger('ppcp-disabled', {
-        'handler': 'ButtonsDisabler.setEnabled',
-        'action': 'disable',
-        'selector': selectorOrElement,
-        'element': element
-    });
-}
-
 export const setEnabled = (selectorOrElement, enable, form = null) => {
     const element = getElement(selectorOrElement);
 
@@ -35,17 +17,20 @@ export const setEnabled = (selectorOrElement, enable, form = null) => {
     }
 
     if (enable) {
-        jQuery(element)
-            .removeClass('ppcp-disabled')
+        jQuery(element).css({
+                'cursor': '',
+                '-webkit-filter': '',
+                'filter': '',
+            } )
             .off('mouseup')
             .find('> *')
             .css('pointer-events', '');
-
-        triggerEnabled(selectorOrElement, element);
-
     } else {
-        jQuery(element)
-            .addClass('ppcp-disabled')
+        jQuery(element).css({
+                'cursor': 'not-allowed',
+                '-webkit-filter': 'grayscale(100%)',
+                'filter': 'grayscale(100%)',
+            })
             .on('mouseup', function(event) {
                 event.stopImmediatePropagation();
 
@@ -59,19 +44,7 @@ export const setEnabled = (selectorOrElement, enable, form = null) => {
             })
             .find('> *')
             .css('pointer-events', 'none');
-
-        triggerDisabled(selectorOrElement, element);
     }
-};
-
-export const isDisabled = (selectorOrElement) => {
-    const element = getElement(selectorOrElement);
-
-    if (!element) {
-        return false;
-    }
-
-    return jQuery(element).hasClass('ppcp-disabled');
 };
 
 export const disable = (selectorOrElement, form = null) => {

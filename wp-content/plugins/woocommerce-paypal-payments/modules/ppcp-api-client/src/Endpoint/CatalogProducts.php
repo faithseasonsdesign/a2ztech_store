@@ -83,9 +83,12 @@ class CatalogProducts {
 	 */
 	public function create( string $name, string $description ): Product {
 		$data = array(
-			'name'        => $name,
-			'description' => $description ?: $name,
+			'name' => $name,
 		);
+
+		if ( $description ) {
+			$data['description'] = $description;
+		}
 
 		$bearer = $this->bearer->bearer();
 		$url    = trailingslashit( $this->host ) . 'v1/catalogs/products';

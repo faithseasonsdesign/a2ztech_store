@@ -33,12 +33,12 @@ class PluginState
     /**
      * @var array $includes
      */
-    protected $includes = [];
+    protected $includes = array();
 
     /**
      * @var array $requires
      */
-    protected $requires = [];
+    protected $requires = array();
 
     /**
      * @var bool $devMode
@@ -99,13 +99,6 @@ class PluginState
     protected $mergeExtraDeep = false;
 
     /**
-     * Whether to merge the replace section.
-     *
-     * @var bool $mergeReplace
-     */
-    protected $mergeReplace = true;
-
-    /**
      * Whether to merge the scripts section.
      *
      * @var bool $mergeScripts
@@ -158,32 +151,30 @@ class PluginState
     {
         $extra = $this->composer->getPackage()->getExtra();
         $config = array_merge(
-            [
-                'include' => [],
-                'require' => [],
+            array(
+                'include' => array(),
+                'require' => array(),
                 'recurse' => true,
                 'replace' => false,
                 'ignore-duplicates' => false,
                 'merge-dev' => true,
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
-                'merge-replace' => true,
                 'merge-scripts' => false,
-            ],
-            $extra['merge-plugin'] ?? []
+            ),
+            isset($extra['merge-plugin']) ? $extra['merge-plugin'] : array()
         );
 
         $this->includes = (is_array($config['include'])) ?
-            $config['include'] : [$config['include']];
+            $config['include'] : array($config['include']);
         $this->requires = (is_array($config['require'])) ?
-            $config['require'] : [$config['require']];
+            $config['require'] : array($config['require']);
         $this->recurse = (bool)$config['recurse'];
         $this->replace = (bool)$config['replace'];
         $this->ignore = (bool)$config['ignore-duplicates'];
         $this->mergeDev = (bool)$config['merge-dev'];
         $this->mergeExtra = (bool)$config['merge-extra'];
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
-        $this->mergeReplace = (bool)$config['merge-replace'];
         $this->mergeScripts = (bool)$config['merge-scripts'];
     }
 
@@ -395,17 +386,6 @@ class PluginState
         return $this->mergeExtraDeep;
     }
 
-    /**
-     * Should the replace section be merged?
-     *
-     * By default, the replace section is merged.
-     *
-     * @return bool
-     */
-    public function shouldMergeReplace()
-    {
-        return $this->mergeReplace;
-    }
 
     /**
      * Should the scripts section be merged?

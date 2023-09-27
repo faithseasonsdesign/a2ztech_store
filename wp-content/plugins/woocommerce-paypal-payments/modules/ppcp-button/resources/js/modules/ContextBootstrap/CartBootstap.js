@@ -2,10 +2,12 @@ import CartActionHandler from '../ActionHandler/CartActionHandler';
 import BootstrapHelper from "../Helper/BootstrapHelper";
 
 class CartBootstrap {
-    constructor(gateway, renderer, errorHandler) {
+    constructor(gateway, renderer, messages, errorHandler) {
         this.gateway = gateway;
         this.renderer = renderer;
+        this.messages = messages;
         this.errorHandler = errorHandler;
+        this.lastAmount = this.gateway.messages.amount;
 
         this.renderer.onButtonsInit(this.gateway.button.wrapper, () => {
             this.handleButtonStatus();
@@ -13,16 +15,16 @@ class CartBootstrap {
     }
 
     init() {
-        if (this.shouldRender()) {
-            this.render();
-            this.handleButtonStatus();
+        if (!this.shouldRender()) {
+            return;
         }
 
+        this.render();
+        this.handleButtonStatus();
+
         jQuery(document.body).on('updated_cart_totals updated_checkout', () => {
-            if (this.shouldRender()) {
-                this.render();
-                this.handleButtonStatus();
-            }
+            this.render();
+            this.handleButtonStatus();
 
             fetch(
                 this.gateway.ajax.cart_script_params.endpoint,
@@ -47,19 +49,16 @@ class CartBootstrap {
                 }
 
                 // handle button status
-                const newData = {};
-                if (result.data.button) {
-                    newData.button = result.data.button;
-                }
-                if (result.data.messages) {
-                    newData.messages = result.data.messages;
-                }
-                if (newData) {
-                    BootstrapHelper.updateScriptData(this, newData);
+                if (result.data.button || result.data.messages) {
+                    this.gateway.button = result.data.button;
+                    this.gateway.messages = result.data.messages;
                     this.handleButtonStatus();
                 }
 
-                jQuery(document.body).trigger('ppcp_cart_total_updated', [result.data.amount]);
+                if (this.lastAmount !== result.data.amount) {
+                    this.lastAmount = result.data.amount;
+                    this.messages.renderWithAmount(this.lastAmount);
+                }
             });
         });
     }
@@ -77,10 +76,6 @@ class CartBootstrap {
     }
 
     render() {
-        if (!this.shouldRender()) {
-            return;
-        }
-
         const actionHandler = new CartActionHandler(
             PayPalCommerceGateway,
             this.errorHandler,
@@ -104,7 +99,7 @@ class CartBootstrap {
             actionHandler.configuration()
         );
 
-        jQuery(document.body).trigger('ppcp_cart_rendered');
+        this.messages.renderWithAmount(this.lastAmount);
     }
 }
 

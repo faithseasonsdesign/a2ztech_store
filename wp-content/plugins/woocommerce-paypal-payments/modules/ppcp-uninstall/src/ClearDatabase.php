@@ -31,13 +31,4 @@ class ClearDatabase implements ClearDatabaseInterface {
 			as_unschedule_action( $action_name );
 		}
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function clear_actions( array $action_names ): void {
-		foreach ( $action_names as $action_name ) {
-			do_action( $action_name );
-		}
-	}
 }
