@@ -1,4 +1,5 @@
 import {loadScript} from "@paypal/paypal-js";
+import widgetBuilder from "./Renderer/WidgetBuilder";
 
 const storageKey = 'ppcp-data-client-id';
 

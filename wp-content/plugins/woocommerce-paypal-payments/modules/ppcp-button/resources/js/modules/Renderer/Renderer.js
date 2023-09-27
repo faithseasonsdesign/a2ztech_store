@@ -165,22 +165,14 @@ class Renderer {
         if (!this.buttonsOptions[wrapper]) {
             return;
         }
-        try {
-            this.buttonsOptions[wrapper].actions.disable();
-        } catch (err) {
-            console.log('Failed to disable buttons: ' + err);
-        }
+        this.buttonsOptions[wrapper].actions.disable();
     }
 
     enableSmartButtons(wrapper) {
         if (!this.buttonsOptions[wrapper]) {
             return;
         }
-        try {
-            this.buttonsOptions[wrapper].actions.enable();
-        } catch (err) {
-            console.log('Failed to enable buttons: ' + err);
-        }
+        this.buttonsOptions[wrapper].actions.enable();
     }
 }
 

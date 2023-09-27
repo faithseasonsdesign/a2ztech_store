@@ -56,6 +56,8 @@ class BillingPlans {
 	/**
 	 * The logger.
 	 *
+	 * The logger.
+	 *
 	 * @var LoggerInterface
 	 */
 	private $logger;

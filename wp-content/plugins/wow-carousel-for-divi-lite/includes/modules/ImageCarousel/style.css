@@ -1,0 +1,7 @@
+.wdcl-lightbox-on .wdcl-lightbox-ctrl {
+    cursor: pointer;
+}
+
+.wdcl-carousel.dir-rtl .slick-dots {
+    direction: rtl;
+}
