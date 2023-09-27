@@ -13,6 +13,7 @@ namespace WooCommerce\PayPalCommerce\Subscription\Helper;
 
 use WC_Product;
 use WC_Product_Subscription_Variation;
+use WC_Subscriptions;
 use WC_Subscriptions_Product;
 use WooCommerce\PayPalCommerce\WcGateway\Settings\Settings;
 use WooCommerce\PayPalCommerce\WcGateway\Exception\NotFoundException;
@@ -120,7 +121,7 @@ class SubscriptionHelper {
 	 */
 	public function plugin_is_active(): bool {
 
-		return class_exists( \WC_Subscriptions::class );
+		return class_exists( WC_Subscriptions::class ) && class_exists( WC_Subscriptions_Product::class );
 	}
 
 	/**
@@ -150,14 +151,10 @@ class SubscriptionHelper {
 	/**
 	 * Checks whether subscription needs subscription intent.
 	 *
-	 * @param string $subscription_mode The subscriptiopn mode.
+	 * @param string $subscription_mode The subscription mode.
 	 * @return bool
 	 */
 	public function need_subscription_intent( string $subscription_mode ): bool {
-		if ( defined( 'PPCP_FLAG_SUBSCRIPTIONS_API' ) && ! PPCP_FLAG_SUBSCRIPTIONS_API ) {
-			return false;
-		}
-
 		if ( $subscription_mode === 'subscriptions_api' ) {
 			if (
 				$this->current_product_is_subscription()
