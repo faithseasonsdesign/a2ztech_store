@@ -1,0 +1,41 @@
+.wdcl_logo_carousel_child,
+.wdcl-logo-carousel-item {
+    overflow: hidden;
+}
+
+.wdcl_logo_carousel_child>div{
+    width: 100%;
+    text-align: center;
+}
+
+.wdcl_logo_carousel_child div img{
+    display: inline-block!important;
+}
+
+.wdcl-logo-carousel-item img {
+    vertical-align: middle;
+    transition: 0.2s ease;
+}
+
+.zoom_in .wdcl-logo-carousel-item:hover img {
+    transform: scale(1.1);
+}
+
+.zoom_out .wdcl-logo-carousel-item:hover img {
+    transform: scale(0.9);
+}
+
+.fade .wdcl-logo-carousel-item:hover img {
+    opacity: 0.65;
+}
+
+.black_n_white .wdcl-logo-carousel-item:hover img {
+    filter: grayscale(100%);
+}
+
+.wdcl_logo_carousel_child {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}

@@ -73,7 +73,7 @@ class SingleProductActionHandler {
     getSubscriptionProducts()
     {
         const id = document.querySelector('[name="add-to-cart"]').value;
-        return [new Product(id, 1, this.variations(), this.extraFields())];
+        return [new Product(id, 1, this.variations())];
     }
 
     configuration()
@@ -107,7 +107,7 @@ class SingleProductActionHandler {
     {
         if ( this.isBookingProduct() ) {
             const id = document.querySelector('[name="add-to-cart"]').value;
-            return [new BookingProduct(id, 1, FormHelper.getPrefixedFields(this.formElement, "wc_bookings_field"), this.extraFields())];
+            return [new BookingProduct(id, 1, FormHelper.getPrefixedFields(this.formElement, "wc_bookings_field"))];
         } else if ( this.isGroupedProduct() ) {
             const products = [];
             this.formElement.querySelectorAll('input[type="number"]').forEach((element) => {
@@ -120,23 +120,15 @@ class SingleProductActionHandler {
                 }
                 const id = parseInt(elementName[1]);
                 const quantity = parseInt(element.value);
-                products.push(new Product(id, quantity, null, this.extraFields()));
+                products.push(new Product(id, quantity, null));
             })
             return products;
         } else {
             const id = document.querySelector('[name="add-to-cart"]').value;
             const qty = document.querySelector('[name="quantity"]').value;
             const variations = this.variations();
-            return [new Product(id, qty, variations, this.extraFields())];
+            return [new Product(id, qty, variations)];
         }
-    }
-
-    extraFields() {
-        return FormHelper.getFilteredFields(
-            this.formElement,
-            ['add-to-cart', 'quantity', 'product_id', 'variation_id'],
-            ['attribute_', 'wc_bookings_field']
-        );
     }
 
     createOrder()

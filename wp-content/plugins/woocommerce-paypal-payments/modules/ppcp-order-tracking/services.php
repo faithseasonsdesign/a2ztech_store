@@ -9,15 +9,9 @@ declare(strict_types=1);
 
 namespace WooCommerce\PayPalCommerce\OrderTracking;
 
-use WC_Order;
-use WooCommerce\PayPalCommerce\ApiClient\Authentication\Bearer;
-use WooCommerce\PayPalCommerce\ApiClient\Exception\RuntimeException;
-use WooCommerce\PayPalCommerce\OrderTracking\Shipment\ShipmentFactoryInterface;
-use WooCommerce\PayPalCommerce\OrderTracking\Shipment\ShipmentFactory;
 use WooCommerce\PayPalCommerce\Vendor\Psr\Container\ContainerInterface;
 use WooCommerce\PayPalCommerce\OrderTracking\Assets\OrderEditPageAssets;
 use WooCommerce\PayPalCommerce\OrderTracking\Endpoint\OrderTrackingEndpoint;
-use WooCommerce\PayPalCommerce\WcGateway\Gateway\PayPalGateway;
 
 return array(
 	'order-tracking.assets'                    => function( ContainerInterface $container ) : OrderEditPageAssets {
@@ -26,18 +20,12 @@ return array(
 			$container->get( 'ppcp.asset-version' )
 		);
 	},
-	'order-tracking.shipment.factory'          => static function ( ContainerInterface $container ) : ShipmentFactoryInterface {
-		return new ShipmentFactory();
-	},
 	'order-tracking.endpoint.controller'       => static function ( ContainerInterface $container ) : OrderTrackingEndpoint {
 		return new OrderTrackingEndpoint(
 			$container->get( 'api.host' ),
 			$container->get( 'api.bearer' ),
 			$container->get( 'woocommerce.logger.woocommerce' ),
-			$container->get( 'button.request-data' ),
-			$container->get( 'order-tracking.shipment.factory' ),
-			$container->get( 'order-tracking.allowed-shipping-statuses' ),
-			$container->get( 'order-tracking.is-merchant-country-us' )
+			$container->get( 'button.request-data' )
 		);
 	},
 	'order-tracking.module.url'                => static function ( ContainerInterface $container ): string {
@@ -53,21 +41,17 @@ return array(
 	},
 	'order-tracking.meta-box.renderer'         => static function ( ContainerInterface $container ): MetaBoxRenderer {
 		return new MetaBoxRenderer(
-			$container->get( 'order-tracking.allowed-shipping-statuses' ),
-			$container->get( 'order-tracking.available-carriers' ),
 			$container->get( 'order-tracking.endpoint.controller' ),
-			$container->get( 'order-tracking.is-merchant-country-us' )
+			$container->get( 'order-tracking.allowed-shipping-statuses' ),
+			$container->get( 'order-tracking.available-carriers' )
 		);
 	},
 	'order-tracking.allowed-shipping-statuses' => static function ( ContainerInterface $container ): array {
-		return (array) apply_filters(
-			'woocommerce_paypal_payments_tracking_statuses',
-			array(
-				'SHIPPED'   => 'Shipped',
-				'ON_HOLD'   => 'On Hold',
-				'DELIVERED' => 'Delivered',
-				'CANCELLED' => 'Cancelled',
-			)
+		return array(
+			'SHIPPED'   => 'SHIPPED',
+			'ON_HOLD'   => 'ON_HOLD',
+			'DELIVERED' => 'DELIVERED',
+			'CANCELLED' => 'CANCELLED',
 		);
 	},
 	'order-tracking.allowed-carriers'          => static function ( ContainerInterface $container ): array {
@@ -88,8 +72,5 @@ return array(
 				),
 			),
 		);
-	},
-	'order-tracking.is-merchant-country-us'    => static function ( ContainerInterface $container ): bool {
-		return $container->get( 'api.shop.country' ) === 'US';
 	},
 );

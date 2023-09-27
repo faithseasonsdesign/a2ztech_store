@@ -36,25 +36,16 @@ class Message {
 	private $dismissable;
 
 	/**
-	 * The wrapper selector that will contain the notice.
-	 *
-	 * @var string
-	 */
-	private $wrapper;
-
-	/**
 	 * Message constructor.
 	 *
 	 * @param string $message The message text.
 	 * @param string $type The message type.
 	 * @param bool   $dismissable Whether the message is dismissable.
-	 * @param string $wrapper The wrapper selector that will contain the notice.
 	 */
-	public function __construct( string $message, string $type, bool $dismissable = true, string $wrapper = '' ) {
+	public function __construct( string $message, string $type, bool $dismissable = true ) {
 		$this->type        = $type;
 		$this->message     = $message;
 		$this->dismissable = $dismissable;
-		$this->wrapper     = $wrapper;
 	}
 
 	/**
@@ -82,14 +73,5 @@ class Message {
 	 */
 	public function is_dismissable(): bool {
 		return $this->dismissable;
-	}
-
-	/**
-	 * Returns the wrapper selector that will contain the notice.
-	 *
-	 * @return string
-	 */
-	public function wrapper(): string {
-		return $this->wrapper;
 	}
 }

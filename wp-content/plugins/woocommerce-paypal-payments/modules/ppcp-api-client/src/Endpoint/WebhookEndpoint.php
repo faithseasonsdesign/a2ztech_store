@@ -17,7 +17,6 @@ use WooCommerce\PayPalCommerce\ApiClient\Exception\RuntimeException;
 use WooCommerce\PayPalCommerce\ApiClient\Factory\WebhookEventFactory;
 use WooCommerce\PayPalCommerce\ApiClient\Factory\WebhookFactory;
 use Psr\Log\LoggerInterface;
-use WP_Error;
 
 /**
  * Class WebhookEndpoint
@@ -194,7 +193,7 @@ class WebhookEndpoint {
 		);
 		$response = $this->request( $url, $args );
 
-		if ( $response instanceof WP_Error ) {
+		if ( is_wp_error( $response ) ) {
 			throw new RuntimeException(
 				__( 'Not able to delete the webhook.', 'woocommerce-paypal-payments' )
 			);
@@ -203,11 +202,6 @@ class WebhookEndpoint {
 		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 204 !== $status_code ) {
 			$json = null;
-			/**
-			 * Use in array as consistency check.
-			 *
-			 * @psalm-suppress RedundantConditionGivenDocblockType
-			 */
 			if ( is_array( $response ) ) {
 				$json = json_decode( $response['body'] );
 			}

@@ -1,0 +1,44 @@
+2023-09-22T10:23:56+00:00 ERROR Error getting data feed
+2023-09-22T10:23:56+00:00 ERROR WP_Error Object
+(
+    [errors] => Array
+        (
+            [http_request_failed] => Array
+                (
+                    [0] => cURL error 28: Resolving timed out after 5001 milliseconds
+                )
+
+        )
+
+    [error_data] => Array
+        (
+        )
+
+    [additional_data:protected] => Array
+        (
+        )
+
+)
+
+2023-09-22T10:24:08+00:00 ERROR Error getting data feed
+2023-09-22T10:24:08+00:00 ERROR WP_Error Object
+(
+    [errors] => Array
+        (
+            [http_request_failed] => Array
+                (
+                    [0] => cURL error 28: Resolving timed out after 5008 milliseconds
+                )
+
+        )
+
+    [error_data] => Array
+        (
+        )
+
+    [additional_data:protected] => Array
+        (
+        )
+
+)
+

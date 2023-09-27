@@ -299,7 +299,9 @@ class CardButtonGateway extends \WC_Payment_Gateway {
 				);
 			}
 
-			do_action( 'woocommerce_paypal_payments_before_handle_payment_success', $wc_order );
+			if ( $this->subscription_helper->has_subscription( $order_id ) ) {
+				$this->schedule_saved_payment_check( $order_id, $wc_order->get_customer_id() );
+			}
 
 			return $this->handle_payment_success( $wc_order );
 		} catch ( PayPalApiException $error ) {

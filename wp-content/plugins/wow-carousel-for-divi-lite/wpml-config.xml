@@ -1,0 +1,18 @@
+<wpml-config>
+	<shortcodes>
+		<shortcode>
+			<tag>wdcl_image_carousel_child</tag>
+			<attributes>
+				<attribute>title</attribute>
+				<attribute>sub_title</attribute>
+			</attributes>
+		</shortcode>
+		<shortcode>
+			<tag>wdcl_logo_carousel_child</tag>
+			<attributes>
+				<attribute>logo_alt</attribute>
+				<attribute>admin_title</attribute>
+			</attributes>
+		</shortcode>
+	</shortcodes>
+</wpml-config>

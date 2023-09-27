@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace WooCommerce\PayPalCommerce\Subscription;
 
-use ActionScheduler_Store;
 use Exception;
 use WC_Product;
 use WC_Product_Subscription_Variation;
@@ -18,7 +17,6 @@ use WC_Product_Variable_Subscription;
 use WC_Subscriptions_Product;
 use WooCommerce\PayPalCommerce\ApiClient\Endpoint\BillingSubscriptions;
 use WooCommerce\PayPalCommerce\ApiClient\Exception\PayPalApiException;
-use WooCommerce\PayPalCommerce\ApiClient\Repository\OrderRepository;
 use WooCommerce\PayPalCommerce\Onboarding\Environment;
 use WooCommerce\PayPalCommerce\Vendor\Dhii\Container\ServiceProvider;
 use WooCommerce\PayPalCommerce\Vendor\Dhii\Modular\Module\ModuleInterface;
@@ -32,7 +30,6 @@ use WooCommerce\PayPalCommerce\WcGateway\Gateway\PayPalGateway;
 use WooCommerce\PayPalCommerce\WcGateway\Gateway\CreditCardGateway;
 use WooCommerce\PayPalCommerce\Vendor\Interop\Container\ServiceProviderInterface;
 use WooCommerce\PayPalCommerce\Vendor\Psr\Container\ContainerInterface;
-use WooCommerce\PayPalCommerce\WcGateway\Processor\TransactionIdHandlingTrait;
 use WooCommerce\PayPalCommerce\WcGateway\Settings\Settings;
 use WooCommerce\PayPalCommerce\WcGateway\Exception\NotFoundException;
 use WP_Post;
@@ -41,8 +38,6 @@ use WP_Post;
  * Class SubscriptionModule
  */
 class SubscriptionModule implements ModuleInterface {
-
-	use TransactionIdHandlingTrait;
 
 	/**
 	 * {@inheritDoc}
@@ -88,19 +83,6 @@ class SubscriptionModule implements ModuleInterface {
 				$logger                   = $c->get( 'woocommerce.logger.woocommerce' );
 
 				$this->add_payment_token_id( $subscription, $payment_token_repository, $logger );
-
-				if ( count( $subscription->get_related_orders() ) === 1 ) {
-					$parent_order = $subscription->get_parent();
-					if ( is_a( $parent_order, WC_Order::class ) ) {
-						$order_repository = $c->get( 'api.repository.order' );
-						$order            = $order_repository->for_wc_order( $parent_order );
-						$transaction_id   = $this->get_paypal_order_transaction_id( $order );
-						if ( $transaction_id ) {
-							$subscription->update_meta_data( 'ppcp_previous_transaction_reference', $transaction_id );
-							$subscription->save();
-						}
-					}
-				}
 			}
 		);
 
@@ -151,20 +133,28 @@ class SubscriptionModule implements ModuleInterface {
 					&& isset( $data['payment_source']['token'] ) && $data['payment_source']['token']['type'] === 'PAYMENT_METHOD_TOKEN'
 					&& isset( $data['payment_source']['token']['source']->card )
 				) {
-					$data['payment_source'] = array(
-						'card' => array(
-							'vault_id'          => $data['payment_source']['token']['id'],
-							'stored_credential' => array(
+					$renewal_order_id     = absint( $data['purchase_units'][0]['custom_id'] );
+					$subscriptions        = wcs_get_subscriptions_for_renewal_order( $renewal_order_id );
+					$subscriptions_values = array_values( $subscriptions );
+					$latest_subscription  = array_shift( $subscriptions_values );
+					if ( is_a( $latest_subscription, WC_Subscription::class ) ) {
+						$related_renewal_orders           = $latest_subscription->get_related_orders( 'ids', 'renewal' );
+						$latest_order_id_with_transaction = array_slice( $related_renewal_orders, 1, 1, false );
+						$order_id                         = ! empty( $latest_order_id_with_transaction ) ? $latest_order_id_with_transaction[0] : 0;
+						if ( count( $related_renewal_orders ) === 1 ) {
+							$order_id = $latest_subscription->get_parent_id();
+						}
+
+						$wc_order = wc_get_order( $order_id );
+						if ( is_a( $wc_order, WC_Order::class ) ) {
+							$transaction_id                                       = $wc_order->get_transaction_id();
+							$data['application_context']['stored_payment_source'] = array(
 								'payment_initiator' => 'MERCHANT',
 								'payment_type'      => 'RECURRING',
 								'usage'             => 'SUBSEQUENT',
-							),
-						),
-					);
-
-					$previous_transaction_reference = $subscription->get_meta( 'ppcp_previous_transaction_reference' );
-					if ( $previous_transaction_reference ) {
-						$data['payment_source']['card']['stored_credential']['previous_transaction_reference'] = $previous_transaction_reference;
+								'previous_transaction_reference' => $transaction_id,
+							);
+						}
 					}
 				}
 
@@ -172,7 +162,9 @@ class SubscriptionModule implements ModuleInterface {
 			}
 		);
 
-		$this->subscriptions_api_integration( $c );
+		if ( defined( 'PPCP_FLAG_SUBSCRIPTIONS_API' ) && PPCP_FLAG_SUBSCRIPTIONS_API ) {
+			$this->subscriptions_api_integration( $c );
+		}
 
 		add_action(
 			'admin_enqueue_scripts',
@@ -194,18 +186,7 @@ class SubscriptionModule implements ModuleInterface {
 				//phpcs:disable WordPress.Security.NonceVerification.Recommended
 				$post_id = wc_clean( wp_unslash( $_GET['post'] ?? '' ) );
 				$product = wc_get_product( $post_id );
-				if ( ! ( is_a( $product, WC_Product::class ) ) ) {
-					return;
-				}
-
-				$subscriptions_helper = $c->get( 'subscription.helper' );
-				assert( $subscriptions_helper instanceof SubscriptionHelper );
-
-				if (
-					! $subscriptions_helper->plugin_is_active()
-					|| ! is_a( $product, WC_Product_Subscription_Variation::class )
-					|| ! WC_Subscriptions_Product::is_subscription( $product )
-				) {
+				if ( ! ( is_a( $product, WC_Product::class ) || is_a( $product, WC_Product_Subscription_Variation::class ) ) || ! WC_Subscriptions_Product::is_subscription( $product ) ) {
 					return;
 				}
 
@@ -221,14 +202,6 @@ class SubscriptionModule implements ModuleInterface {
 				$products = array( $this->set_product_config( $product ) );
 				if ( $product->get_type() === 'variable-subscription' ) {
 					$products = array();
-
-					/**
-					 * Suppress pslam.
-					 *
-					 * @psalm-suppress TypeDoesNotContainType
-					 *
-					 * WC_Product_Variable_Subscription extends WC_Product_Variable.
-					 */
 					assert( $product instanceof WC_Product_Variable );
 					$available_variations = $product->get_available_variations();
 					foreach ( $available_variations as $variation ) {
@@ -307,35 +280,6 @@ class SubscriptionModule implements ModuleInterface {
 			},
 			30,
 			2
-		);
-
-		add_action(
-			'action_scheduler_before_execute',
-			/**
-			 * Param types removed to avoid third-party issues.
-			 *
-			 * @psalm-suppress MissingClosureParamType
-			 */
-			function( $action_id ) {
-				/**
-				 * Class exist in WooCommerce.
-				 *
-				 * @psalm-suppress UndefinedClass
-				 */
-				$store  = ActionScheduler_Store::instance();
-				$action = $store->fetch_action( $action_id );
-
-				$subscription_id = $action->get_args()['subscription_id'] ?? null;
-				if ( $subscription_id ) {
-					$subscription = wcs_get_subscription( $subscription_id );
-					if ( is_a( $subscription, WC_Subscription::class ) ) {
-						$paypal_subscription_id = $subscription->get_meta( 'ppcp_subscription' ) ?? '';
-						if ( $paypal_subscription_id ) {
-							as_unschedule_action( $action->get_hook(), $action->get_args() );
-						}
-					}
-				}
-			}
 		);
 	}
 
@@ -560,13 +504,8 @@ class SubscriptionModule implements ModuleInterface {
 			 */
 			function( $variation_id ) use ( $c ) {
 				$wcsnonce_save_variations = wc_clean( wp_unslash( $_POST['_wcsnonce_save_variations'] ?? '' ) );
-
-				$subscriptions_helper = $c->get( 'subscription.helper' );
-				assert( $subscriptions_helper instanceof SubscriptionHelper );
-
 				if (
-					! $subscriptions_helper->plugin_is_active()
-					|| ! WC_Subscriptions_Product::is_subscription( $variation_id )
+					! WC_Subscriptions_Product::is_subscription( $variation_id )
 					|| ! is_string( $wcsnonce_save_variations )
 					|| ! wp_verify_nonce( $wcsnonce_save_variations, 'wcs_subscription_variations' )
 				) {
@@ -581,8 +520,7 @@ class SubscriptionModule implements ModuleInterface {
 				$subscriptions_api_handler = $c->get( 'subscription.api-handler' );
 				assert( $subscriptions_api_handler instanceof SubscriptionsApiHandler );
 				$this->update_subscription_product_meta( $product, $subscriptions_api_handler );
-			},
-			30
+			}
 		);
 
 		add_action(

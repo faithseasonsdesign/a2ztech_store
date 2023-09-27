@@ -11,7 +11,6 @@ namespace WooCommerce\PayPalCommerce\Webhooks\Handler;
 
 use Psr\Log\LoggerInterface;
 use WC_Order;
-use WooCommerce\PayPalCommerce\WcGateway\Helper\RefundFeesUpdater;
 use WooCommerce\PayPalCommerce\WcGateway\Processor\RefundMetaTrait;
 use WooCommerce\PayPalCommerce\WcGateway\Processor\TransactionIdHandlingTrait;
 use WP_Error;
@@ -33,21 +32,12 @@ class PaymentCaptureRefunded implements RequestHandler {
 	private $logger;
 
 	/**
-	 * The refund fees updater.
-	 *
-	 * @var RefundFeesUpdater
-	 */
-	private $refund_fees_updater;
-
-	/**
 	 * PaymentCaptureRefunded constructor.
 	 *
-	 * @param LoggerInterface   $logger The logger.
-	 * @param RefundFeesUpdater $refund_fees_updater The refund fees updater.
+	 * @param LoggerInterface $logger The logger.
 	 */
-	public function __construct( LoggerInterface $logger, RefundFeesUpdater $refund_fees_updater ) {
-		$this->logger              = $logger;
-		$this->refund_fees_updater = $refund_fees_updater;
+	public function __construct( LoggerInterface $logger ) {
+		$this->logger = $logger;
 	}
 
 	/**
@@ -78,11 +68,9 @@ class PaymentCaptureRefunded implements RequestHandler {
 	 * @return WP_REST_Response
 	 */
 	public function handle_request( WP_REST_Request $request ): WP_REST_Response {
-		$resource = ( $request['resource'] ?? array() ) ?: array();
-
-		$order_id  = $resource['custom_id'] ?? 0;
-		$refund_id = (string) ( $resource['id'] ?? '' );
-
+		$order_id  = isset( $request['resource']['custom_id'] ) ?
+			$request['resource']['custom_id'] : 0;
+		$refund_id = (string) ( $request['resource']['id'] ?? '' );
 		if ( ! $order_id ) {
 			$message = sprintf(
 				'No order for webhook event %s was found.',
@@ -112,7 +100,8 @@ class PaymentCaptureRefunded implements RequestHandler {
 				'amount'   => $request['resource']['amount']['value'],
 			)
 		);
-		if ( $refund instanceof WP_Error ) {
+		if ( is_wp_error( $refund ) ) {
+			assert( $refund instanceof WP_Error );
 			$message = sprintf(
 				'Order %1$s could not be refunded. %2$s',
 				(string) $wc_order->get_id(),
@@ -133,7 +122,6 @@ class PaymentCaptureRefunded implements RequestHandler {
 		if ( $refund_id ) {
 			$this->update_transaction_id( $refund_id, $wc_order, $this->logger );
 			$this->add_refund_to_meta( $wc_order, $refund_id );
-			$this->refund_fees_updater->update( $wc_order );
 		}
 
 		return $this->success_response();
