@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInita7c14807788ff38a21dc774bab6b2298
+class ComposerStaticInit33c81de31baa5e556459026e53d515da
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
@@ -25,11 +25,15 @@ class ComposerStaticInita7c14807788ff38a21dc774bab6b2298
             'WooCommerce\\PayPalCommerce\\Subscription\\' => 40,
             'WooCommerce\\PayPalCommerce\\StatusReport\\' => 40,
             'WooCommerce\\PayPalCommerce\\Session\\' => 35,
+            'WooCommerce\\PayPalCommerce\\SavedPaymentChecker\\' => 47,
             'WooCommerce\\PayPalCommerce\\OrderTracking\\' => 41,
             'WooCommerce\\PayPalCommerce\\Onboarding\\' => 38,
+            'WooCommerce\\PayPalCommerce\\Googlepay\\' => 37,
             'WooCommerce\\PayPalCommerce\\Compat\\' => 34,
+            'WooCommerce\\PayPalCommerce\\Common\\' => 34,
             'WooCommerce\\PayPalCommerce\\Button\\' => 34,
             'WooCommerce\\PayPalCommerce\\Blocks\\' => 34,
+            'WooCommerce\\PayPalCommerce\\Applepay\\' => 36,
             'WooCommerce\\PayPalCommerce\\ApiClient\\' => 37,
             'WooCommerce\\PayPalCommerce\\AdminNotices\\' => 40,
             'WooCommerce\\PayPalCommerce\\' => 27,
@@ -99,6 +103,10 @@ class ComposerStaticInita7c14807788ff38a21dc774bab6b2298
         array (
             0 => __DIR__ . '/../..' . '/modules/ppcp-session/src',
         ),
+        'WooCommerce\\PayPalCommerce\\SavedPaymentChecker\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/modules/ppcp-saved-payment-checker/src',
+        ),
         'WooCommerce\\PayPalCommerce\\OrderTracking\\' => 
         array (
             0 => __DIR__ . '/../..' . '/modules/ppcp-order-tracking/src',
@@ -107,9 +115,17 @@ class ComposerStaticInita7c14807788ff38a21dc774bab6b2298
         array (
             0 => __DIR__ . '/../..' . '/modules/ppcp-onboarding/src',
         ),
+        'WooCommerce\\PayPalCommerce\\Googlepay\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/modules/ppcp-googlepay/src',
+        ),
         'WooCommerce\\PayPalCommerce\\Compat\\' => 
         array (
             0 => __DIR__ . '/../..' . '/modules/ppcp-compat/src',
+        ),
+        'WooCommerce\\PayPalCommerce\\Common\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/lib/common',
         ),
         'WooCommerce\\PayPalCommerce\\Button\\' => 
         array (
@@ -118,6 +134,10 @@ class ComposerStaticInita7c14807788ff38a21dc774bab6b2298
         'WooCommerce\\PayPalCommerce\\Blocks\\' => 
         array (
             0 => __DIR__ . '/../..' . '/modules/ppcp-blocks/src',
+        ),
+        'WooCommerce\\PayPalCommerce\\Applepay\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/modules/ppcp-applepay/src',
         ),
         'WooCommerce\\PayPalCommerce\\ApiClient\\' => 
         array (
@@ -185,9 +205,9 @@ class ComposerStaticInita7c14807788ff38a21dc774bab6b2298
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInita7c14807788ff38a21dc774bab6b2298::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInita7c14807788ff38a21dc774bab6b2298::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInita7c14807788ff38a21dc774bab6b2298::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit33c81de31baa5e556459026e53d515da::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit33c81de31baa5e556459026e53d515da::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit33c81de31baa5e556459026e53d515da::$classMap;
 
         }, null, ClassLoader::class);
     }
